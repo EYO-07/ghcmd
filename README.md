@@ -25,6 +25,22 @@ echo ... loading macros
 8. the ghcmd.exe will be located on `bin` folder
 
 ## Usage 
+Below is an example to control any window position using the key combination `win+alt+arrow_key`, you can also increase it's size with `win+alt+pgup` and decrease `win+alt+pgdown` and change it's orientation with `win+alt+end` and `win+alt+home`
+in cmd.exe
 ```bash
-
+ghcmd WINDOW_UP:win|alt+up WINDOW_DOWN:win|alt+down WINDOW_LEFT:win|alt+left WINDOW_RIGHT:win|alt+right WINDOW_INCREASE:win|alt+pgup WINDOW_DECREASE:win|alt+pgdown WINDOW_VERTICAL:win|alt+end WINDOW_HORIZONTAL:win|alt+home
 ```
+in powershell:
+```powershell
+.\ghcmd.exe WINDOW_UP:win|alt+up WINDOW_DOWN:win|alt+down WINDOW_LEFT:win|alt+left WINDOW_RIGHT:win|alt+right WINDOW_INCREASE:win|alt+pgup WINDOW_DECREASE:win|alt+pgdown WINDOW_VERTICAL:win|alt+end WINDOW_HORIZONTAL:win|alt+home
+```
+### Available commands:
+1. WINDOW_UP, WINDOW_DOWN, WINDOW_LEFT, WINDOW_RIGHT
+2. WINDOW_INCREASE, WINDOW_DECREASE
+3. WINDOW_VERTICAL, WINDOW_HORIZONTAL
+4. MOUSE_UP, MOUSE_DOWN, MOUSE_LEFT, MOUSE_RIGHT, MOUSE_RBUTTON, MOUSE_LBUTTON, MOUSE_MBUTTON
+5. MOUSE_SCROLLUP, MOUSE_SCROLLDOWN, MOUSE_TOGGLE_SPEED
+6. TOGGLE_TITLEBAR
+7. SELECT_WORKING_WINDOW, BRING_TO_TOP, BRINT_TO_LAST
+
+It's under development, if find any issues please report.
