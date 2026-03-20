@@ -1,7 +1,7 @@
 @echo off
 
-REM change the path on GCCDIR= to the mingw gcc.exe location
-set "GCCDIR=D:\mdr\pdr\ppom_cpp_gcc_14032026\mingw64\bin"
+REM change the path C:\devtools\mingw64\bin on GCCDIR= to the path where you find gcc.exe 
+set "GCCDIR=C:\devtools\mingw64\bin"
 
 REM =================================================================================
 
