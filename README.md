@@ -27,10 +27,12 @@ echo ... loading macros
 ## Usage 
 Below is an example to control any window position using the key combination `win+alt+arrow_key`, you can also increase it's size with `win+alt+pgup` and decrease `win+alt+pgdown` and change it's orientation with `win+alt+end` and `win+alt+home`
 in cmd.exe
+
+Open the cmd.exe with administrator privileges (it's necessary for global hotkeys to work).
 ```bash
 ghcmd WINDOW_UP:win|alt+up WINDOW_DOWN:win|alt+down WINDOW_LEFT:win|alt+left WINDOW_RIGHT:win|alt+right WINDOW_INCREASE:win|alt+pgup WINDOW_DECREASE:win|alt+pgdown WINDOW_VERTICAL:win|alt+end WINDOW_HORIZONTAL:win|alt+home
 ```
-in powershell:
+Or open in powershell with administrator privileges:
 ```powershell
 .\ghcmd.exe WINDOW_UP:win|alt+up WINDOW_DOWN:win|alt+down WINDOW_LEFT:win|alt+left WINDOW_RIGHT:win|alt+right WINDOW_INCREASE:win|alt+pgup WINDOW_DECREASE:win|alt+pgdown WINDOW_VERTICAL:win|alt+end WINDOW_HORIZONTAL:win|alt+home
 ```
