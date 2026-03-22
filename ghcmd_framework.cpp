@@ -677,7 +677,7 @@ void BringTOLastZOrder() {
 void MouseToggleSpeed() {
     if (mouse_step==7) { mouse_step = 25; } else { mouse_step = 7; }
 }
-void Mouse_LBUTTON_DOWN() {  
+void Mouse_LBUTTON_DOWN() { // ISSUE  
     if (!is_LBUTTON_down) {
         SendMouseInput(MOUSEEVENTF_LEFTDOWN);
         is_LBUTTON_down = true;
@@ -699,7 +699,7 @@ void Mouse_LBUTTON_TOGGLE() { // TESTING
         is_LBUTTON_down = false;
     }
 }
-void Mouse_RBUTTON_DOWN() { 
+void Mouse_RBUTTON_DOWN() { // ISSUE 
     if (!is_RBUTTON_down) {
         SendMouseInput(MOUSEEVENTF_RIGHTDOWN);
         is_RBUTTON_down = true;
