@@ -1,28 +1,32 @@
 // -- BEGIN
+// -- text marker highlight - tags example 
+// {Notepad--T;red:ISSUE;yellow:DEPRECATED,REVISION,TESTING,PLACEHOLDER;silver:FIXED;cyan:TODO,>>>,<<<} 
+// {Notepad--T;magenta:imports,variables,functions} 
+// {Notepad--H;1:silver;2:lightblue} 
+// -- search tokens 
+// {Notepad--T;red:}
+// {Notepad--S:}
 
-// -- text marker highlight 
-// {Notepad--T;Red:BUG,ISSUE,DEPRECATED,BUG/ISSUE} 
-// {Notepad--T;Yellow:TESTING,NOT_TESTED,REVISION,PLACEHOLDER}
-// {Notepad--T;Cyan:TODO,WORKING_>>>,<<<_WORKING} 
-// {Notepad--T;Silver:SOLVED} 
-// {Notepad--T;Silver:Inventory,Logic,Dialetic,Workflow} 
-// {Notepad--H;1:silver;2:lightblue}
-
+// imports 
 #include "ghcmd_framework.h"
 
-// REVISION - this file isn't a framework, it's doing things that should be done in main file!
-
-// Global Variables Definition
+// imports | variables 
 std::map<std::wstring, std::wstring> command_map;        // Command to hotkey expression
 std::map<std::wstring, UINT> keycode_map;                // Key string to Windows API keycode
 int hotkeys_counter = 0;                                 // Hotkey counter, initialized to 0
 std::map<int, std::wstring> hotkey_index_to_command;     // Hotkey ID to command
 std::mutex hotkeyMutex;  // Define mutex
-int mouse_step = 7;
-std::unordered_map<HWND, WindowState> g_windowStates;
-std::unordered_map<HWND, bool> window_titlebar_map;
+int mouse_step = 7; // mouse move speed 
+std::unordered_map<HWND, WindowState> g_windowStates; 
+std::unordered_map<HWND, bool> window_titlebar_map; // for toggling compact mode 
 std::unordered_map<std::wstring, UINT> command_keypress_map; // REVISION
 HWND working_window; // window used by BringTOLastZOrder and BringToTopZOrder
+bool b_LBUTTON_toggle = false; // LBUTTON down toggle
+bool is_LBUTTON_down = false;
+bool b_RBUTTON_toggle = false; // RBUTTON down toggle 
+bool is_RBUTTON_down = false;
+
+// imports | variables | functions 
 
 // -- Hotkey management
 void InitializeKeycodeMap() {
@@ -231,19 +235,6 @@ void RegisterHotkeys() { // REVISION
         // Register the hotkey
         if (key != 0) {
             RegisterGlobalHotkey(sys_keys, key, command, hotkeyExpr);
-//            int id = hotkeys_counter + 1;  // Next ID
-//            if (RegisterHotKey(nullptr, id, sys_keys, key)) {
-//                hotkeys_counter++;  // Only increment on success
-//                hotkey_index_to_command[id] = command;
-//				std::wcout << L"Registered " << command << L" (" << hotkeyExpr << L") as ID " << id << std::endl;
-//            } else {
-//                DWORD error = GetLastError();
-//                std::wcerr << L"Failed to register " << command << L" (" << hotkeyExpr << L") as ID " << id 
-//                           << L" Error: " << error << std::endl;
-//                if (error == 1409) {
-//                    std::wcerr << L"Hotkey already registered by another app!" << std::endl;
-//                }
-//            }
         }
         else {
             std::wcerr << L"Invalid hotkey expression for " << command << L":" << hotkeyExpr << std::endl;
@@ -266,7 +257,6 @@ void UnregisterHotkeys() {
     hotkeys_counter = 0;
     std::wcout << L"All hotkeys unregistered." << std::endl;
 }
-
 void RegisterGlobalHotkey(UINT sys_keys, UINT key, std::wstring command, std::wstring hotkeyExpr) {
     int id = hotkeys_counter + 1;  // Next ID
     if (RegisterHotKey(nullptr, id, sys_keys, key)) {
@@ -352,9 +342,17 @@ bool ExecuteCommand(std::wstring command, HWND currentHwnd) {
         MouseClick_RBUTTON();
         return true; // TESTING
     }
+    else if (command == L"MOUSE_RBUTTON_DOWN") {
+        Mouse_RBUTTON_DOWN();
+        return true;
+    }
     else if (command == L"MOUSE_LBUTTON") {
         MouseClick_LBUTTON();
         return true; // TESTING
+    }
+    else if (command == L"MOUSE_LBUTTON_DOWN") {
+        Mouse_LBUTTON_DOWN();
+        return true;
     }
     else if (command == L"MOUSE_MBUTTON") {
         MouseClick_MBUTTON();
@@ -364,9 +362,9 @@ bool ExecuteCommand(std::wstring command, HWND currentHwnd) {
         if ( !window_titlebar_map.contains(currentHwnd) ) window_titlebar_map[currentHwnd] = true;
         window_titlebar_map[currentHwnd] = !window_titlebar_map[currentHwnd];
         if ( window_titlebar_map[currentHwnd] ) {
-            SetActiveWindowNormal(currentHwnd);
+            SetWindowNormal(currentHwnd);
         } else {
-            SetActiveWindowBorderless(currentHwnd);
+            SetWindowBorderless(currentHwnd);
         }
         return true; // TESTING
     }
@@ -394,10 +392,27 @@ bool ExecuteCommand(std::wstring command, HWND currentHwnd) {
         MouseToggleSpeed();
         return true;
     }
+    else if (command == L"MOUSE_TOGGLE_LBUTTON") { 
+        Mouse_LBUTTON_TOGGLE(); // TESTING
+        return true;
+    }
     else {
         // std::cout << "Invalid Command" << std::endl;
         return true;
     }    
+}
+bool ReleaseCommand(std::wstring command, HWND currentHwnd) {
+    if (command == L"MOUSE_LBUTTON_DOWN") {
+        Mouse_LBUTTON_UP();
+        return true;
+    } 
+    else if (command == L"MOUSE_RBUTTON_DOWN") {
+        Mouse_RBUTTON_UP();
+        return true;
+    } 
+    else {
+        return true;
+    }
 }
 bool ProcessHotkeys(MSG& msg) {
     if ( msg.message != WM_HOTKEY ) return true;     
@@ -418,13 +433,13 @@ bool ProcessKeypress() { // REVISION TESTING
     if (currentHwnd == nullptr) return false;
     bool b_keypress = false;
     for (const auto& [command, keycode] : command_keypress_map) { 
-        if ( !is_key_pressed(keycode) ) continue;
-        b_keypress = true;
-//        BlockInput(TRUE);   // block normal input
-        ExecuteCommand(command, currentHwnd);
-//        BlockInput(FALSE);  // release input when not pressed
+        if ( is_key_pressed(keycode) ) { 
+            ExecuteCommand(command, currentHwnd);
+            b_keypress = true;
+        } else {
+            ReleaseCommand(command, currentHwnd);
+        }
     }
-//    BlockInput(FALSE);  // release input when not pressed
     return b_keypress;
 }
 
@@ -572,10 +587,14 @@ void MoveMouse(int dx, int dy) {
     SendInput(1, &input, sizeof(INPUT));
 }
 void MouseClick_LBUTTON() {
+    b_LBUTTON_toggle = false;
+    is_LBUTTON_down = false;
     SendMouseInput(MOUSEEVENTF_LEFTDOWN);
     SendMouseInput(MOUSEEVENTF_LEFTUP);
 }
 void MouseClick_RBUTTON() {
+    b_RBUTTON_toggle = false;
+    is_RBUTTON_down = false;
     SendMouseInput(MOUSEEVENTF_RIGHTDOWN);
     SendMouseInput(MOUSEEVENTF_RIGHTUP);
 }
@@ -591,7 +610,7 @@ void Mouse_ScrollDown() {
     // Negative WHEEL_DELTA scrolls down
     SendMouseInput(MOUSEEVENTF_WHEEL, (DWORD)-WHEEL_DELTA);
 }
-void SetActiveWindowBorderless(HWND hwnd) {
+void SetWindowBorderless(HWND hwnd) {
     if (!IsWindow(hwnd)) return;
     // If already stored, don't overwrite
     if (g_windowStates.contains(hwnd)) return;
@@ -610,16 +629,8 @@ void SetActiveWindowBorderless(HWND hwnd) {
     newExStyle &= ~(WS_EX_DLGMODALFRAME | WS_EX_CLIENTEDGE | WS_EX_STATICEDGE);
     SetWindowLong(hwnd, GWL_STYLE, newStyle);
     SetWindowLong(hwnd, GWL_EXSTYLE, newExStyle);
-    // Resize to cover the same area (Windows may shrink otherwise)
-//    SetWindowPos(
-//        hwnd, nullptr,
-//        state.rect.left, state.rect.top,
-//        state.rect.right - state.rect.left,
-//        state.rect.bottom - state.rect.top,
-//        SWP_FRAMECHANGED | SWP_NOZORDER | SWP_NOOWNERZORDER
-//    );
 }
-void SetActiveWindowNormal(HWND hwnd) {
+void SetWindowNormal(HWND hwnd) {
     if (!IsWindow(hwnd)) return;
     auto it = g_windowStates.find(hwnd);
     if (it == g_windowStates.end()) return; // nothing to restore
@@ -635,12 +646,10 @@ void SetActiveWindowNormal(HWND hwnd) {
     g_windowStates.erase(it);
 }
 void SetAllWindowNormal() {
-    // Copy keys first because SetActiveWindowNormal() erases entries
     std::vector<HWND> toRestore;
     toRestore.reserve(g_windowStates.size());
     for (const auto& pair : g_windowStates) toRestore.push_back(pair.first);
-    // Restore each window
-    for (HWND hwnd : toRestore) SetActiveWindowNormal(hwnd);
+    for (HWND hwnd : toRestore) SetWindowNormal(hwnd);
 }
 void SelectWorkingWindow(HWND hwnd){
     if (!hwnd) return; 
@@ -668,6 +677,50 @@ void BringTOLastZOrder() {
 void MouseToggleSpeed() {
     if (mouse_step==7) { mouse_step = 25; } else { mouse_step = 7; }
 }
+void Mouse_LBUTTON_DOWN() {  
+    if (!is_LBUTTON_down) {
+        SendMouseInput(MOUSEEVENTF_LEFTDOWN);
+        is_LBUTTON_down = true;
+    }
+}
+void Mouse_LBUTTON_UP() { // ISSUE 
+    if (is_LBUTTON_down) {
+        SendMouseInput(MOUSEEVENTF_LEFTUP);
+        is_LBUTTON_down = false;
+    }
+}
+void Mouse_LBUTTON_TOGGLE() { // TESTING 
+    b_LBUTTON_toggle = !b_LBUTTON_toggle;
+    if (b_LBUTTON_toggle && !is_LBUTTON_down) {
+        SendMouseInput(MOUSEEVENTF_LEFTDOWN);
+        is_LBUTTON_down = true;
+    } else {
+        SendMouseInput(MOUSEEVENTF_LEFTUP);
+        is_LBUTTON_down = false;
+    }
+}
+void Mouse_RBUTTON_DOWN() { 
+    if (!is_RBUTTON_down) {
+        SendMouseInput(MOUSEEVENTF_RIGHTDOWN);
+        is_RBUTTON_down = true;
+    }
+}
+void Mouse_RBUTTON_UP() { // ISSUE  
+    if (is_RBUTTON_down) {
+        is_RBUTTON_down = false;
+        SendMouseInput(MOUSEEVENTF_RIGHTUP);
+    }
+}
+void Mouse_RBUTTON_TOGGLE() { // TESTING 
+    b_RBUTTON_toggle = !b_RBUTTON_toggle;
+    if (b_RBUTTON_toggle && !is_RBUTTON_down) {
+        SendMouseInput(MOUSEEVENTF_RIGHTDOWN);
+        is_RBUTTON_down = true;
+    } else {
+        SendMouseInput(MOUSEEVENTF_RIGHTUP);
+        is_RBUTTON_down = false;
+    }
+}
 
 // -- helpers
 std::wstring trim(const std::wstring& str) {
@@ -690,7 +743,7 @@ void SendMouseInput(DWORD flags, DWORD data) {
     input.mi.mouseData = data;
     SendInput(1, &input, sizeof(INPUT));
 }
-bool is_key_pressed(const int key_code) { // TESTING
+bool is_key_pressed(const int key_code) { 
     return (GetAsyncKeyState(key_code) & 0x8000) != 0; 
 }
 

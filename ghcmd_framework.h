@@ -1,11 +1,13 @@
 // -- BEGIN
-
 // -- text marker highlight 
-// {Notepad--T;Red:BUG,ISSUE,DEPRECATED,BUG/ISSUE} 
+// {Notepad--T;Red:ISSUE,DEPRECATED,BUG/ISSUE} 
 // {Notepad--T;Yellow:TESTING,NOT_TESTED,REVISION}
 // {Notepad--T;Cyan:TODO,WORKING_>>>,<<<_WORKING} 
 // {Notepad--T;Silver:SOLVED} 
 // {Notepad--H;1:silver;2:lightblue}
+// -- search tokens 
+// {Notepad--T;red:}
+// {Notepad--S:}
 
 #ifndef ghcmd_framework_H
 #define ghcmd_framework_H
@@ -57,7 +59,7 @@ void HorizontalResize(HWND hwnd); //
 bool ExistsCommand(const std::wstring& command);
 void ExecuteCMD(const std::wstring& command); 
 std::wstring trim(const std::wstring& str);
-void AssignHotkey(std::wstring line);
+void AssignHotkey(std::wstring line); // BUG/ISSUE - complex hotkeys don't work 
 void MoveMouse(int dx, int dy);
 void MouseClick_LBUTTON();
 void MouseClick_RBUTTON();
@@ -65,8 +67,8 @@ void MouseClick_MBUTTON();
 void Mouse_ScrollUp();
 void Mouse_ScrollDown();
 void SendMouseInput(DWORD flags, DWORD data = 0);
-void SetActiveWindowBorderless(HWND hwnd);
-void SetActiveWindowNormal(HWND hwnd);
+void SetWindowBorderless(HWND hwnd);
+void SetWindowNormal(HWND hwnd);
 void SetAllWindowNormal();
 void VerticalResize(HWND hwnd, int width_asp, int height_asp); // height_p width_p are used for aspect ratio 
 void SelectWorkingWindow(HWND hwnd);
@@ -77,6 +79,15 @@ bool ExecuteCommand(std::wstring command, HWND currentHwnd);
 bool ProcessKeypress();
 void RegisterGlobalHotkey(UINT sys_keys, UINT key, std::wstring command, std::wstring hotkeyExpr);
 void MouseToggleSpeed();
+bool is_command_keydown_keyup(std::wstring command);
+void Mouse_LBUTTON_TOGGLE();
+bool ReleaseCommand(std::wstring command, HWND currentHwnd);
+void Mouse_LBUTTON_DOWN();
+void Mouse_LBUTTON_UP();
+void Mouse_RBUTTON_DOWN();
+void Mouse_RBUTTON_UP();
+void Mouse_RBUTTON_TOGGLE();
+
 
 #endif // ghcmd_framework_H
 
