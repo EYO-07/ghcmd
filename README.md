@@ -5,7 +5,7 @@ Windows global hotkeys command-line utility.
 1. go to https://winlibs.com/ and download the mingw gnu compiler suited for your computer. This [Windows 64](https://github.com/brechtsanders/winlibs_mingw/releases/download/15.2.0posix-13.0.0-msvcrt-r1/winlibs-x86_64-posix-seh-gcc-15.2.0-mingw-w64msvcrt-13.0.0-r1.zip) is a portable window version of gcc for window 64 machines.
 2. extract somewhere like `C:\devtools\`
 3. download this repository .zip and extract somewhere
-4. open the file `session.bat` and modify the value of variable GCCDIR= to the gcc.exe location
+4. edit the file `session.bat` and modify the value of variable GCCDIR= to the gcc.exe location
 
 ```bash
 @echo off
@@ -19,10 +19,10 @@ REM Define temporary macros for this cmd.exe session
 echo ... loading macros 
 ```
 
-5. open cmd.exe or powershell on the folder where you extracted this repository
-6. on cmd.exe or powershell execute the session.bat
-7. now run the command `build` to compile
-8. the ghcmd.exe will be located on `bin` folder
+5. open cmd.exe on the folder where you extracted this repository (to change directory use the command `cd DIRECTORYPATH` with DIRECTORYPATH the path where you find session.bat).
+6. on cmd.exe execute the `session.bat` (this script temporarily changes the path to find the gcc and create the macro `build` to build the project using gcc).
+7. now run the command `build` to compile.
+8. the ghcmd.exe will be located on `bin` folder.
 
 ## Usage 
 Below is an example to control any window position using the key combination `win+alt+arrow_key`, you can also increase it's size with `win+alt+pgup` and decrease `win+alt+pgdown` and change it's orientation with `win+alt+end` and `win+alt+home`
@@ -32,10 +32,7 @@ Open the cmd.exe with administrator privileges (it's necessary for global hotkey
 ```bash
 ghcmd WINDOW_UP:win|alt+up WINDOW_DOWN:win|alt+down WINDOW_LEFT:win|alt+left WINDOW_RIGHT:win|alt+right WINDOW_INCREASE:win|alt+pgup WINDOW_DECREASE:win|alt+pgdown WINDOW_VERTICAL:win|alt+end WINDOW_HORIZONTAL:win|alt+home
 ```
-Or open in powershell with administrator privileges:
-```powershell
-.\ghcmd.exe WINDOW_UP:win|alt+up WINDOW_DOWN:win|alt+down WINDOW_LEFT:win|alt+left WINDOW_RIGHT:win|alt+right WINDOW_INCREASE:win|alt+pgup WINDOW_DECREASE:win|alt+pgdown WINDOW_VERTICAL:win|alt+end WINDOW_HORIZONTAL:win|alt+home
-```
+
 ### Available commands:
 1. WINDOW_UP, WINDOW_DOWN, WINDOW_LEFT, WINDOW_RIGHT
 2. WINDOW_INCREASE, WINDOW_DECREASE
