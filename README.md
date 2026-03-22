@@ -1,5 +1,7 @@
-# ghcmd
+# ghcmd 
 Windows global hotkeys command-line utility. 
+
+This project is under development.
 
 ## Installation/Compilation 
 1. go to https://winlibs.com/ and download the mingw gnu compiler suited for your computer. This [Windows 64](https://github.com/brechtsanders/winlibs_mingw/releases/download/15.2.0posix-13.0.0-msvcrt-r1/winlibs-x86_64-posix-seh-gcc-15.2.0-mingw-w64msvcrt-13.0.0-r1.zip) is a portable window version of gcc for window 64 machines.
@@ -28,7 +30,9 @@ echo ... loading macros
 Below is an example to control any window position using the key combination `win+alt+arrow_key`, you can also increase it's size with `win+alt+pgup` and decrease `win+alt+pgdown` and change it's orientation with `win+alt+end` and `win+alt+home`
 in cmd.exe
 
-Open the cmd.exe with administrator privileges (it's necessary for global hotkeys to work).
+1. Open the cmd.exe with administrator privileges (it's necessary for global hotkeys to work).
+2. change the directory to where you find the compiled ghcmd.exe using the command `cd`.
+3. Execute the command below which will assign shortcuts for windows movement and resize.
 ```bash
 ghcmd WINDOW_UP:win|alt+up WINDOW_DOWN:win|alt+down WINDOW_LEFT:win|alt+left WINDOW_RIGHT:win|alt+right WINDOW_INCREASE:win|alt+pgup WINDOW_DECREASE:win|alt+pgdown WINDOW_VERTICAL:win|alt+end WINDOW_HORIZONTAL:win|alt+home
 ```
